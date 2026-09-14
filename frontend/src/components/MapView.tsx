@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Asset, Edge, AssetStatus } from '../types';
-import { Info, Layers } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface MapViewProps {
   assets: Asset[];
@@ -10,6 +11,9 @@ interface MapViewProps {
   onSelectAsset: (id: string) => void;
   onSimulateFailure: (id: string) => void;
   assetStates?: Record<string, any>;
+  className?: string;
+  style?: React.CSSProperties;
+  wrapperHeight?: string;
 }
 
 export const MapView: React.FC<MapViewProps> = ({
@@ -19,6 +23,9 @@ export const MapView: React.FC<MapViewProps> = ({
   onSelectAsset,
   onSimulateFailure,
   assetStates,
+  className,
+  style,
+  wrapperHeight,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -300,20 +307,82 @@ export const MapView: React.FC<MapViewProps> = ({
     }
   }, [selectedAssetId]);
 
+  // Fit bounds when assets are first loaded into the map
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || assets.length === 0) return;
+    if (!selectedAssetId) {
+      try {
+        const bounds = L.latLngBounds(assets.map((a) => [a.latitude, a.longitude]));
+        map.fitBounds(bounds, { padding: [35, 35], maxZoom: 13 });
+      } catch (e) {
+        console.warn('Map fitBounds warning:', e);
+      }
+    }
+  }, [assets.length]);
+
   return (
-    <div className="glass-panel" style={{ padding: '0.85rem' }}>
-      <div className="panel-header" style={{ marginBottom: '0.75rem', paddingBottom: '0.5rem' }}>
-        <div className="panel-title">
-          <span>🗺️ Synthetic City Infrastructure Map</span>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+    <div
+      className={`glass-panel map-card-container ${className || ''}`}
+      style={{
+        padding: '0.85rem',
+        display: 'flex',
+        flexDirection: 'column',
+        minWidth: 0,
+        ...style,
+      }}
+    >
+      <div
+        className="panel-header map-panel-header"
+        style={{
+          marginBottom: '0.75rem',
+          paddingBottom: '0.5rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.65rem',
+        }}
+      >
+        <div
+          className="panel-title"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: '0.2rem',
+            minWidth: 0,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+            <span>🗺️ Synthetic City Infrastructure Map</span>
+          </div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             {assets.length} Monitored Assets • {edges.length} Dependencies
           </span>
         </div>
 
         {/* Map Controls */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.65rem',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-end',
+          }}
+        >
           {/* Basemap Switcher */}
-          <div style={{ display: 'flex', background: 'rgba(2, 6, 23, 0.6)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+          <div
+            style={{
+              display: 'flex',
+              background: 'rgba(2, 6, 23, 0.6)',
+              padding: '2px',
+              borderRadius: '6px',
+              border: '1px solid var(--border-subtle)',
+              flexShrink: 0,
+            }}
+          >
             <button
               className={`btn-style-pill ${mapStyle === 'dark' ? 'active' : ''}`}
               onClick={() => setMapStyle('dark')}
@@ -330,7 +399,7 @@ export const MapView: React.FC<MapViewProps> = ({
             </button>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <span className="badge badge-operational">Operational</span>
             <span className="badge badge-warning">Warning</span>
             <span className="badge badge-critical">Critical</span>
@@ -352,15 +421,20 @@ export const MapView: React.FC<MapViewProps> = ({
           fontSize: '0.72rem',
           color: '#93c5fd',
           marginBottom: '0.65rem',
+          flexShrink: 0,
         }}
       >
-        <Info size={13} />
+        <Info size={13} style={{ flexShrink: 0 }} />
         <span>
           <strong>Simulated Infrastructure Model:</strong> Geographic basemap used for visualization only. All asset coordinates, dependencies, and capacities are synthetic.
         </span>
       </div>
 
-      <div className={`map-wrapper ${mapStyle === 'street' ? 'leaflet-light-mode' : ''}`} ref={mapContainerRef} />
+      <div
+        className={`map-wrapper ${mapStyle === 'street' ? 'leaflet-light-mode' : ''}`}
+        style={wrapperHeight ? { height: wrapperHeight, minHeight: wrapperHeight } : undefined}
+        ref={mapContainerRef}
+      />
     </div>
   );
 };

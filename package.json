@@ -1,0 +1,12 @@
+{
+  "name": "cascadex",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CascadeX — Urban Infrastructure Failure & Resilience Simulator",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "start": "./run.sh"
+  }
+}

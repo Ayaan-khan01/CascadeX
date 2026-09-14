@@ -343,19 +343,21 @@ export const App: React.FC = () => {
 
         {/* Tab Views */}
         {activeTab === 'dashboard' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem' }}>
+          <div className="dashboard-grid">
             {/* Left: Quick Interactive Map */}
-            <MapView
-              assets={assets}
-              edges={networkData ? (networkData.edges as any) : []}
-              selectedAssetId={selectedAssetId}
-              onSelectAsset={setSelectedAssetId}
-              onSimulateFailure={handleSimulateAssetFailure}
-              assetStates={assetStates}
-            />
+            <div className="dashboard-left-col">
+              <MapView
+                assets={assets}
+                edges={networkData ? (networkData.edges as any) : []}
+                selectedAssetId={selectedAssetId}
+                onSelectAsset={setSelectedAssetId}
+                onSimulateFailure={handleSimulateAssetFailure}
+                assetStates={assetStates}
+              />
+            </div>
 
             {/* Right: Quick Action Hub */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="dashboard-right-col">
               {/* Quick Failure Launcher */}
               <div className="glass-panel">
                 <div className="panel-title" style={{ marginBottom: '0.85rem' }}>
@@ -365,12 +367,13 @@ export const App: React.FC = () => {
                   Trigger failure on any critical infrastructure node to witness live cascade propagation.
                 </p>
 
-                <div style={{ display: 'flex', gap: '0.65rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '0.65rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                   <select
                     value={selectedAssetId || ''}
                     onChange={(e) => setSelectedAssetId(e.target.value)}
                     style={{
                       flex: 1,
+                      minWidth: '180px',
                       background: '#1e293b',
                       color: '#f8fafc',
                       border: '1px solid var(--border-subtle)',
@@ -390,12 +393,13 @@ export const App: React.FC = () => {
                     className="btn btn-danger"
                     disabled={isSimulating || !selectedAssetId}
                     onClick={() => selectedAssetId && handleSimulateAssetFailure(selectedAssetId)}
+                    style={{ whiteSpace: 'nowrap' }}
                   >
                     <Play size={14} /> Simulate Failure
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => handleSimulateAssetFailure('B03')}
@@ -423,7 +427,7 @@ export const App: React.FC = () => {
                   <span>🏢 Infrastructure Asset Breakdown</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '0.75rem' }}>
                   {metrics?.by_type && Object.entries(metrics.by_type).map(([key, count]) => (
                     <div key={key} style={{ background: 'rgba(2, 6, 23, 0.5)', padding: '0.75rem', borderRadius: '8px', textAlign: 'center' }}>
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{key}</div>
@@ -435,7 +439,7 @@ export const App: React.FC = () => {
 
               {/* Quick Scenario Lab Preview */}
               <div className="glass-panel">
-                <div className="panel-header" style={{ marginBottom: '0.5rem' }}>
+                <div className="panel-header" style={{ marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <span className="panel-title">🧪 Recommended Scenarios</span>
                   <button className="btn btn-secondary btn-sm" onClick={() => setActiveTab('scenarios')}>
                     View All 10
@@ -452,15 +456,17 @@ export const App: React.FC = () => {
                         background: 'rgba(2, 6, 23, 0.4)',
                         padding: '0.65rem 0.85rem',
                         borderRadius: '6px',
+                        gap: '0.5rem',
                       }}
                     >
-                      <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>{s.name}</div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{s.category}</div>
                       </div>
                       <button
                         className="btn btn-primary btn-sm"
                         onClick={() => handleRunScenario(s.id)}
+                        style={{ flexShrink: 0 }}
                       >
                         Run
                       </button>
@@ -480,6 +486,7 @@ export const App: React.FC = () => {
             onSelectAsset={setSelectedAssetId}
             onSimulateFailure={handleSimulateAssetFailure}
             assetStates={assetStates}
+            wrapperHeight="720px"
           />
         )}
 
