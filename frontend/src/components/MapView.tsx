@@ -14,6 +14,7 @@ interface MapViewProps {
   className?: string;
   style?: React.CSSProperties;
   wrapperHeight?: string;
+  theme?: 'light' | 'dark';
 }
 
 export const MapView: React.FC<MapViewProps> = ({
@@ -26,13 +27,16 @@ export const MapView: React.FC<MapViewProps> = ({
   className,
   style,
   wrapperHeight,
+  theme,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
   const polylinesRef = useRef<L.Polyline[]>([]);
-  const [mapStyle, setMapStyle] = useState<'dark' | 'street'>('dark');
+  const [mapStyle, setMapStyle] = useState<'mono' | 'street'>('mono');
+
+  const isDark = theme === 'dark' || (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark');
 
   // Function to get current status of asset (from active simulation or default)
   const getAssetStatus = (asset: Asset): AssetStatus => {
@@ -44,25 +48,37 @@ export const MapView: React.FC<MapViewProps> = ({
 
   const getStatusColor = (status: AssetStatus): string => {
     switch (status) {
-      case 'OPERATIONAL': return '#10b981';
-      case 'WARNING': return '#f59e0b';
-      case 'IMPACTED': return '#f97316';
-      case 'CRITICAL': return '#ef4444';
-      case 'FAILED': return '#dc2626';
-      case 'RECOVERING': return '#8b5cf6';
-      default: return '#64748b';
+      case 'OPERATIONAL': return isDark ? '#ffffff' : '#000000';
+      case 'WARNING': return '#ea580c';
+      case 'IMPACTED': return '#e11d48';
+      case 'CRITICAL': return '#ff0000';
+      case 'FAILED': return '#ff0000';
+      case 'RECOVERING': return '#2563eb';
+      default: return '#71717a';
     }
   };
 
-  const getTypeIconSymbol = (type: string): string => {
+  const getTypeTag = (type: string): string => {
     switch (type) {
-      case 'HOSPITAL': return '🏥';
-      case 'POWER': return '⚡';
-      case 'WATER': return '💧';
-      case 'EMERGENCY': return '🚑';
-      case 'BRIDGE': return '🌉';
-      case 'ROAD': return '🛣️';
-      default: return '📍';
+      case 'HOSPITAL': return '[HOSPITAL]';
+      case 'POWER': return '[POWER]';
+      case 'WATER': return '[WATER]';
+      case 'EMERGENCY': return '[EMERGENCY]';
+      case 'BRIDGE': return '[BRIDGE]';
+      case 'ROAD': return '[ROAD]';
+      default: return `[${type}]`;
+    }
+  };
+
+  const getLayerCode = (type: string): string => {
+    switch (type) {
+      case 'HOSPITAL': return 'H';
+      case 'POWER': return 'P';
+      case 'WATER': return 'W';
+      case 'EMERGENCY': return 'E';
+      case 'BRIDGE': return 'B';
+      case 'ROAD': return 'R';
+      default: return type.charAt(0) || 'A';
     }
   };
 
@@ -155,22 +171,22 @@ export const MapView: React.FC<MapViewProps> = ({
         const isFailed = sourceStatus === 'FAILED' || targetStatus === 'FAILED';
         const isImpacted = sourceStatus === 'CRITICAL' || targetStatus === 'CRITICAL';
 
-        let edgeColor = 'rgba(56, 189, 248, 0.4)'; // cyan transport
+        let edgeColor = isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.45)';
         let dashArray = undefined;
 
         if (edge.relationship_type === 'POWER_SUPPLY') {
-          edgeColor = 'rgba(168, 85, 247, 0.55)';
+          edgeColor = isDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.7)';
         } else if (edge.relationship_type === 'EMERGENCY_ACCESS') {
-          edgeColor = 'rgba(239, 68, 68, 0.55)';
+          edgeColor = 'rgba(255, 0, 0, 0.75)';
         } else if (edge.relationship_type === 'WATER_SUPPLY') {
-          edgeColor = 'rgba(6, 182, 212, 0.55)';
+          edgeColor = isDark ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.55)';
         }
 
         if (isFailed) {
-          edgeColor = 'rgba(220, 38, 38, 0.85)';
-          dashArray = '5, 8';
+          edgeColor = '#ff0000';
+          dashArray = '6, 6';
         } else if (isImpacted) {
-          edgeColor = 'rgba(249, 115, 22, 0.75)';
+          edgeColor = '#e11d48';
         }
 
         const polyline = L.polyline(
@@ -180,8 +196,8 @@ export const MapView: React.FC<MapViewProps> = ({
           ],
           {
             color: edgeColor,
-            weight: isFailed ? 2.5 : 1.8,
-            opacity: 0.85,
+            weight: isFailed ? 3 : 1.8,
+            opacity: isFailed ? 1 : 0.75,
             dashArray,
           }
         ).addTo(map);
@@ -196,34 +212,41 @@ export const MapView: React.FC<MapViewProps> = ({
       const color = getStatusColor(status);
       const isSelected = asset.id === selectedAssetId;
       const isFailed = status === 'FAILED' || status === 'CRITICAL';
+      const bg = isFailed ? '#ff0000' : (isDark ? '#0c0c0e' : '#ffffff');
+      const fg = isFailed ? '#ffffff' : (isDark ? '#ffffff' : '#000000');
+      const borderColor = isFailed ? (isDark ? '#ffffff' : '#000000') : color;
+      const shadow = isSelected ? (isDark ? '3px 3px 0px #ffffff' : '3px 3px 0px #000000') : (isDark ? '2px 2px 0px #ffffff' : '2px 2px 0px rgba(0,0,0,0.8)');
 
       const iconHtml = `
         <div style="
           position: relative;
-          width: ${isSelected ? '38px' : '30px'};
-          height: ${isSelected ? '38px' : '30px'};
-          border-radius: 50%;
-          background: #0f172a;
-          border: 2.5px solid ${color};
+          width: ${isSelected ? '36px' : '28px'};
+          height: ${isSelected ? '36px' : '28px'};
+          border-radius: 0px;
+          background: ${bg};
+          color: ${fg};
+          border: 2px solid ${borderColor};
           display: flex;
           align-items: center;
           justify-content: center;
+          font-family: JetBrains Mono, monospace;
+          font-weight: 900;
           font-size: ${isSelected ? '16px' : '13px'};
-          box-shadow: 0 0 ${isSelected ? '16px' : '8px'} ${color};
+          box-shadow: ${shadow};
           cursor: pointer;
-          transition: transform 0.2s ease;
-          ${isFailed ? 'animation: pulse-ring 1.5s infinite;' : ''}
+          transition: transform 0.15s ease;
+          ${isFailed ? 'animation: pulse-square 1.2s infinite;' : ''}
         ">
-          ${getTypeIconSymbol(asset.type)}
-          ${asset.is_spof ? '<div style="position:absolute;top:-4px;right:-4px;width:10px;height:10px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;" title="Single Point of Failure"></div>' : ''}
+          ${getLayerCode(asset.type)}
+          ${asset.is_spof ? `<div style="position:absolute;top:-4px;right:-4px;width:9px;height:9px;background:#ff0000;border:1.5px solid ${isDark ? '#ffffff' : '#000000'};" title="Single Point of Failure"></div>` : ''}
         </div>
       `;
 
       const customIcon = L.divIcon({
         className: 'custom-map-marker',
         html: iconHtml,
-        iconSize: isSelected ? [38, 38] : [30, 30],
-        iconAnchor: isSelected ? [19, 19] : [15, 15],
+        iconSize: isSelected ? [36, 36] : [28, 28],
+        iconAnchor: isSelected ? [18, 18] : [14, 14],
       });
 
       const marker = L.marker([asset.latitude, asset.longitude], { icon: customIcon })
@@ -232,53 +255,56 @@ export const MapView: React.FC<MapViewProps> = ({
           onSelectAsset(asset.id);
         });
 
-      // Rich popup content
+      // Rich popup content - Architectural Minimalist
       const simInfo = assetStates && assetStates[asset.id];
       const currentCap = simInfo ? simInfo.operational_capacity.toFixed(0) : asset.operational_capacity.toFixed(0);
 
       const popupContent = document.createElement('div');
-      popupContent.style.cssText = 'color:#0f172a; font-family: Inter, sans-serif; min-width: 220px; padding: 4px;';
+      popupContent.style.cssText = `color:${isDark ? '#ffffff' : '#000000'}; font-family: Inter, sans-serif; min-width: 240px; padding: 8px; background:${isDark ? '#000000' : '#ffffff'};`;
       popupContent.innerHTML = `
-        <div style="font-weight: 800; font-size: 14px; margin-bottom: 2px; color: #0284c7;">
-          ${getTypeIconSymbol(asset.type)} ${asset.name}
+        <div style="font-family: Outfit, sans-serif; font-weight: 900; font-size: 16px; margin-bottom: 4px; color: ${isDark ? '#ffffff' : '#000000'}; text-transform: uppercase; letter-spacing: -0.02em;">
+          ${getTypeTag(asset.type)} ${asset.name}
         </div>
-        <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">
-          ID: ${asset.id} | Layer: ${asset.type}
+        <div style="font-size: 11px; color: ${isDark ? '#a1a1aa' : '#71717a'}; margin-bottom: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">
+          ID: ${asset.id} // LAYER: ${asset.type}
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-          <span>Status:</span>
-          <span style="font-weight: 700; color: ${color};">${status}</span>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; border-bottom: 1px solid ${isDark ? '#27272a' : '#e4e4e7'}; padding-bottom: 4px;">
+          <span style="font-weight: 700; text-transform: uppercase; color: ${isDark ? '#ffffff' : '#000000'};">Status:</span>
+          <span style="font-weight: 900; color: ${color}; text-transform: uppercase;">${status}</span>
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-          <span>Operational Capacity:</span>
-          <strong>${currentCap}%</strong>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; border-bottom: 1px solid ${isDark ? '#27272a' : '#e4e4e7'}; padding-bottom: 4px;">
+          <span style="font-weight: 700; text-transform: uppercase; color: ${isDark ? '#ffffff' : '#000000'};">Capacity:</span>
+          <strong style="color: ${isDark ? '#ffffff' : '#000000'};">${currentCap}%</strong>
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-          <span>Criticality Index:</span>
-          <strong>${asset.criticality.toFixed(1)}/100</strong>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; border-bottom: 1px solid ${isDark ? '#27272a' : '#e4e4e7'}; padding-bottom: 4px;">
+          <span style="font-weight: 700; text-transform: uppercase; color: ${isDark ? '#ffffff' : '#000000'};">Criticality:</span>
+          <strong style="color: ${isDark ? '#ffffff' : '#000000'};">${asset.criticality.toFixed(1)}/100</strong>
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
-          <span>Citizens Dependent:</span>
-          <strong>${asset.population_served.toLocaleString()}</strong>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; border-bottom: 1px solid ${isDark ? '#27272a' : '#e4e4e7'}; padding-bottom: 4px;">
+          <span style="font-weight: 700; text-transform: uppercase; color: ${isDark ? '#ffffff' : '#000000'};">Citizens:</span>
+          <strong style="color: ${isDark ? '#ffffff' : '#000000'};">${asset.population_served.toLocaleString()}</strong>
         </div>
-        ${asset.is_spof ? '<div style="background:#fee2e2; color:#b91c1c; font-size:11px; padding:4px 6px; border-radius:4px; font-weight:700; margin-bottom:8px; text-align:center;">⚠️ Single Point of Failure (SPOF)</div>' : ''}
-        ${simInfo && simInfo.failure_reason ? `<div style="background:#fef3c7; color:#92400e; font-size:11px; padding:4px 6px; border-radius:4px; margin-bottom:8px;"><strong>Reason:</strong> ${simInfo.failure_reason}</div>` : ''}
+        ${asset.is_spof ? '<div style="background:#000000; color:#ff0000; border: 1.5px solid #ff0000; font-size:11px; padding:5px 7px; font-weight:900; margin-bottom:8px; text-align:center; text-transform:uppercase; letter-spacing:0.06em;">CRITICAL: SINGLE POINT OF FAILURE (SPOF)</div>' : ''}
+        ${simInfo && simInfo.failure_reason ? `<div style="background:${isDark ? '#1c1917' : '#fffbeb'}; border:1px solid #f59e0b; color:#f59e0b; font-size:11px; padding:5px 7px; margin-bottom:8px;"><strong>Reason:</strong> ${simInfo.failure_reason}</div>` : ''}
         <button id="btn-popup-fail-${asset.id}" style="
           width: 100%;
-          background: #dc2626;
+          background: #ff0000;
           color: white;
-          border: none;
-          padding: 6px 10px;
-          border-radius: 6px;
+          border: 1.5px solid ${isDark ? '#ffffff' : '#000000'};
+          padding: 8px 12px;
+          border-radius: 0;
           cursor: pointer;
-          font-weight: 700;
+          font-weight: 800;
           font-size: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          box-shadow: 2px 2px 0px ${isDark ? '#ffffff' : '#000000'};
         ">
-          💥 Simulate Failure
+          SIMULATE FAILURE
         </button>
       `;
 
@@ -296,7 +322,7 @@ export const MapView: React.FC<MapViewProps> = ({
 
       markersRef.current[asset.id] = marker;
     });
-  }, [assets, edges, selectedAssetId, assetStates]);
+  }, [assets, edges, selectedAssetId, assetStates, isDark]);
 
   // Pan to selected asset when selected in another view
   useEffect(() => {
@@ -355,7 +381,7 @@ export const MapView: React.FC<MapViewProps> = ({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-            <span>🗺️ Synthetic City Infrastructure Map</span>
+            <span>CITY INFRASTRUCTURE MAP</span>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             {assets.length} Monitored Assets • {edges.length} Dependencies
@@ -376,26 +402,25 @@ export const MapView: React.FC<MapViewProps> = ({
           <div
             style={{
               display: 'flex',
-              background: 'rgba(2, 6, 23, 0.6)',
+              background: 'var(--bg-card)',
               padding: '2px',
-              borderRadius: '6px',
-              border: '1px solid var(--border-subtle)',
+              border: '1.5px solid var(--border-bold)',
               flexShrink: 0,
             }}
           >
             <button
-              className={`btn-style-pill ${mapStyle === 'dark' ? 'active' : ''}`}
-              onClick={() => setMapStyle('dark')}
-              title="Dark Mode Basemap"
+              className={`btn-style-pill ${mapStyle === 'mono' ? 'active' : ''}`}
+              onClick={() => setMapStyle('mono')}
+              title="Architectural Monochrome Basemap"
             >
-              Dark Grid
+              Architectural
             </button>
             <button
               className={`btn-style-pill ${mapStyle === 'street' ? 'active' : ''}`}
               onClick={() => setMapStyle('street')}
               title="Standard Street Basemap"
             >
-              Street Map
+              Standard
             </button>
           </div>
 
@@ -413,20 +438,19 @@ export const MapView: React.FC<MapViewProps> = ({
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.45rem',
-          padding: '0.35rem 0.65rem',
-          background: 'rgba(56, 189, 248, 0.08)',
-          border: '1px solid rgba(56, 189, 248, 0.2)',
-          borderRadius: '6px',
-          fontSize: '0.72rem',
-          color: '#93c5fd',
-          marginBottom: '0.65rem',
+          gap: '0.55rem',
+          padding: '0.45rem 0.85rem',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-bold)',
+          fontSize: '0.74rem',
+          color: 'var(--text-primary)',
+          marginBottom: '0.75rem',
           flexShrink: 0,
         }}
       >
-        <Info size={13} style={{ flexShrink: 0 }} />
+        <Info size={14} style={{ flexShrink: 0 }} />
         <span>
-          <strong>Simulated Infrastructure Model:</strong> Geographic basemap used for visualization only. All asset coordinates, dependencies, and capacities are synthetic.
+          <strong>SYNTHETIC URBAN MODEL:</strong> Architectural basemap used for visualization only. All asset coordinates, dependency graph topologies, and capacities are deterministic models.
         </span>
       </div>
 

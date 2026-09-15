@@ -70,7 +70,7 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
       <div className="panel-header">
         <div>
           <div className="panel-title">
-            <span>🔍 "Why Did This Fail?" — Deterministic Causality Engine</span>
+            <span>"WHY DID THIS FAIL?" — DETERMINISTIC CAUSALITY ENGINE</span>
           </div>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
             Trace propagation paths from root initiation down to downstream infrastructure degradation.
@@ -79,7 +79,7 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
 
         {/* Asset Selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Inspect Asset:</span>
+          <span style={{ fontSize: '0.74rem', fontWeight: 800, textTransform: 'uppercase', color: '#000000' }}>Inspect Asset:</span>
           <select
             value={currentAssetId}
             onChange={(e) => {
@@ -88,12 +88,9 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
               setCounterfactualResult(null);
             }}
             style={{
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
               padding: '0.35rem 0.75rem',
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
+              fontWeight: 700,
               minWidth: '220px',
             }}
           >
@@ -118,48 +115,49 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
           {/* Asset Summary Banner */}
           <div
             style={{
-              background: 'rgba(2, 6, 23, 0.6)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '10px',
-              padding: '1rem 1.25rem',
+              background: '#ffffff',
+              border: '2px solid #000000',
+              padding: '1.25rem 1.5rem',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '1.5rem',
+              marginBottom: '1.75rem',
+              boxShadow: '4px 4px 0px #000000',
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#fff' }}>{currentAssetState.name}</h3>
-                <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>
+                  {currentAssetState.name}
+                </h3>
+                <span className="mono" style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 800 }}>
                   [{currentAssetId}]
                 </span>
                 <span className="badge badge-critical">{currentAssetState.status}</span>
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginTop: '0.25rem' }}>
-                <strong>Direct Cause:</strong> {currentAssetState.failure_reason || currentAssetState.failure_cause || 'Cascade overload'}
+              <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
+                <strong style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.74rem' }}>Direct Cause:</strong> {currentAssetState.failure_reason || currentAssetState.failure_cause || 'Cascade stress overload'}
               </div>
             </div>
 
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Remaining Capacity</div>
-              <div className="mono font-extrabold" style={{ fontSize: '1.4rem', color: '#ef4444' }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.08em' }}>Remaining Capacity</div>
+              <div className="mono font-extrabold" style={{ fontSize: '1.8rem', color: '#ff0000', fontWeight: 900 }}>
                 {currentAssetState.operational_capacity.toFixed(0)}%
               </div>
             </div>
           </div>
 
           {/* Causal Chain Breadcrumb Timeline */}
-          <div style={{ marginBottom: '1.75rem' }}>
-            <h4 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <GitBranch size={16} color="#38bdf8" /> Propagation Path from Root Trigger:
+          <div style={{ marginBottom: '2rem' }}>
+            <h4 style={{ fontSize: '0.88rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <GitBranch size={16} color="var(--text-primary)" /> Propagation Path from Root Trigger:
             </h4>
 
             {currentChain.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {currentChain.map((link, index) => {
                   const isRoot = index === 0;
-                  const isLeaf = index === currentChain.length - 1;
 
                   return (
                     <div
@@ -167,56 +165,53 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.85rem',
-                        background: isRoot
-                          ? 'rgba(239, 68, 68, 0.15)'
-                          : isLeaf
-                          ? 'rgba(245, 158, 11, 0.15)'
-                          : 'rgba(15, 23, 42, 0.7)',
-                        border: `1px solid ${isRoot ? '#ef4444' : isLeaf ? '#f59e0b' : 'var(--border-subtle)'}`,
-                        borderRadius: '8px',
-                        padding: '0.75rem 1rem',
+                        gap: '1rem',
+                        background: 'var(--bg-card)',
+                        border: `1.5px solid ${isRoot ? '#ff0000' : 'var(--border-bold)'}`,
+                        boxShadow: `3px 3px 0px ${isRoot ? '#ff0000' : 'var(--border-bold)'}`,
+                        padding: '0.85rem 1.15rem',
                       }}
                     >
                       <span
                         style={{
-                          width: '26px',
-                          height: '26px',
-                          borderRadius: '50%',
-                          background: isRoot ? '#ef4444' : '#1e293b',
-                          color: '#fff',
+                          width: '28px',
+                          height: '28px',
+                          background: isRoot ? '#ff0000' : 'var(--border-bold)',
+                          color: isRoot ? '#ffffff' : 'var(--bg-main)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: '0.75rem',
-                          fontWeight: 700,
+                          fontWeight: 900,
+                          flexShrink: 0,
                         }}
                       >
-                        {index + 1}
+                        0{index + 1}
                       </span>
 
                       <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#f8fafc' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontWeight: 900, fontSize: '0.92rem', color: 'var(--text-primary)', textTransform: 'uppercase' }}>
                             {link.asset_name}
                           </span>
-                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>
                             ({link.asset_type})
                           </span>
                           <span
                             style={{
                               fontSize: '0.68rem',
-                              padding: '0.1rem 0.4rem',
-                              borderRadius: '4px',
-                              background: '#334155',
-                              color: '#94a3b8',
+                              padding: '0.15rem 0.45rem',
+                              background: 'var(--border-bold)',
+                              color: 'var(--bg-main)',
                               marginLeft: 'auto',
+                              fontWeight: 800,
+                              textTransform: 'uppercase',
                             }}
                           >
                             Level {link.cascade_level} • +{link.timestamp}m
                           </span>
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '0.15rem' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
                           {link.event} {link.capacity_change ? `(${link.capacity_change})` : ''}
                         </div>
                       </div>
@@ -225,7 +220,7 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
                 })}
               </div>
             ) : (
-              <div style={{ padding: '1rem', background: 'rgba(2, 6, 23, 0.4)', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <div style={{ padding: '1rem', background: '#fafafa', border: '1px solid #000000', fontSize: '0.82rem', color: '#52525b' }}>
                 This asset was an initial root failure or experienced direct manual failure.
               </div>
             )}
@@ -234,26 +229,26 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
           {/* Counterfactual "What-If" Exploration */}
           <div
             style={{
-              background: 'linear-gradient(135deg, rgba(2, 6, 23, 0.8), rgba(15, 23, 42, 0.9))',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              borderRadius: '10px',
-              padding: '1.25rem',
+              background: '#ffffff',
+              border: '2px solid #000000',
+              padding: '1.5rem',
+              boxShadow: '4px 4px 0px #000000',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem' }}>
-              <Zap size={18} color="#38bdf8" />
-              <h4 style={{ fontSize: '0.95rem', color: '#f8fafc' }}>
-                Counterfactual "What-If" Analysis for {currentAssetState.name}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.65rem' }}>
+              <Zap size={18} color="#000000" />
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+                Counterfactual "What-If" Analysis: {currentAssetState.name}
               </h4>
             </div>
 
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-              Test how a targeted hardening intervention on this specific asset would have changed the entire cascade outcome.
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+              Test how a targeted hardening intervention on this specific node would have altered the cascade outcome across the synthetic metropolitan grid.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
               <div>
-                <label style={{ fontSize: '0.74rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+                <label style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
                   What-If Modification:
                 </label>
                 <select
@@ -261,15 +256,12 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
                   onChange={(e) => setWhatIfMod(e.target.value)}
                   style={{
                     width: '100%',
-                    background: '#1e293b',
-                    color: '#f8fafc',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '6px',
-                    padding: '0.45rem',
+                    padding: '0.5rem',
                     fontSize: '0.8rem',
+                    fontWeight: 700,
                   }}
                 >
-                  <option value="add_backup">Add Backup Auxiliary Power / Bypass</option>
+                  <option value="add_backup">Add Auxiliary Power / Redundant Bypass</option>
                   <option value="increase_capacity">Expand Capacity (+50%)</option>
                   <option value="improve_condition">Improve Structural Condition (+30%)</option>
                   <option value="reduce_vulnerability">Reduce Environmental Vulnerability (-50%)</option>
@@ -277,8 +269,8 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
               </div>
 
               <div>
-                <label style={{ fontSize: '0.74rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
-                  Modification Magnitude: {whatIfVal}
+                <label style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-primary)', display: 'block', marginBottom: '0.35rem' }}>
+                  Magnitude: {whatIfVal}%
                 </label>
                 <input
                   type="range"
@@ -287,7 +279,7 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
                   step={5}
                   value={whatIfVal}
                   onChange={(e) => setWhatIfVal(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#38bdf8' }}
+                  style={{ width: '100%', accentColor: 'var(--border-bold)' }}
                 />
               </div>
 
@@ -311,36 +303,35 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
             {counterfactualResult && (
               <div
                 style={{
-                  marginTop: '1rem',
-                  padding: '1rem',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  border: '1px solid rgba(16, 185, 129, 0.4)',
-                  borderRadius: '8px',
+                  marginTop: '1.25rem',
+                  padding: '1.25rem',
+                  background: 'var(--bg-surface)',
+                  border: '1.5px solid var(--border-bold)',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.65rem' }}>
-                  <ShieldCheck size={18} color="#10b981" />
-                  <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#34d399' }}>
-                    Resilience Improvement Detected!
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem' }}>
+                  <ShieldCheck size={18} color="var(--text-primary)" />
+                  <span style={{ fontWeight: 900, fontSize: '0.95rem', color: 'var(--text-primary)', textTransform: 'uppercase' }}>
+                    Resilience Improvement Detected
                   </span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Baseline Impact</div>
-                    <div className="mono" style={{ fontSize: '1.2rem', color: '#ef4444', fontWeight: 800 }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800 }}>Baseline Impact</div>
+                    <div className="mono" style={{ fontSize: '1.4rem', color: '#ff0000', fontWeight: 900 }}>
                       {counterfactualResult.baseline_impact}/100
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Counterfactual Impact</div>
-                    <div className="mono" style={{ fontSize: '1.2rem', color: '#38bdf8', fontWeight: 800 }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800 }}>Counterfactual Impact</div>
+                    <div className="mono" style={{ fontSize: '1.4rem', color: 'var(--text-primary)', fontWeight: 900 }}>
                       {counterfactualResult.counterfactual_impact}/100
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Resilience Gain</div>
-                    <div className="mono" style={{ fontSize: '1.2rem', color: '#10b981', fontWeight: 800 }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800 }}>Resilience Gain</div>
+                    <div className="mono" style={{ fontSize: '1.4rem', color: 'var(--text-primary)', fontWeight: 900 }}>
                       +{counterfactualResult.improvement_pct}%
                     </div>
                   </div>
@@ -350,8 +341,8 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({
           </div>
         </div>
       ) : (
-        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-          Please select an impacted asset to trace its failure cause.
+        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.08em' }}>
+          Select an impacted asset from the dropdown or map to trace its causal chain.
         </div>
       )}
     </div>

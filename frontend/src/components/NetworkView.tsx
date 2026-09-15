@@ -9,6 +9,7 @@ interface NetworkViewProps {
   onSelectAsset: (id: string) => void;
   onSimulateFailure: (id: string) => void;
   assetStates?: Record<string, any>;
+  theme?: 'light' | 'dark';
 }
 
 export const NetworkView: React.FC<NetworkViewProps> = ({
@@ -17,21 +18,24 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
   onSelectAsset,
   onSimulateFailure,
   assetStates,
+  theme = 'light',
 }) => {
   const cyRef = useRef<HTMLDivElement>(null);
   const cyInstanceRef = useRef<Core | null>(null);
   const [layoutName, setLayoutName] = useState<string>('cose');
   const [filterType, setFilterType] = useState<string>('ALL');
 
+  const isDark = theme === 'dark';
+
   const getStatusColor = (status: AssetStatus): string => {
     switch (status) {
-      case 'OPERATIONAL': return '#10b981';
-      case 'WARNING': return '#f59e0b';
-      case 'IMPACTED': return '#f97316';
-      case 'CRITICAL': return '#ef4444';
-      case 'FAILED': return '#dc2626';
-      case 'RECOVERING': return '#8b5cf6';
-      default: return '#64748b';
+      case 'OPERATIONAL': return isDark ? '#ffffff' : '#000000';
+      case 'WARNING': return '#ea580c';
+      case 'IMPACTED': return '#e11d48';
+      case 'CRITICAL': return '#ff0000';
+      case 'FAILED': return '#ff0000';
+      case 'RECOVERING': return '#2563eb';
+      default: return isDark ? '#a1a1aa' : '#71717a';
     }
   };
 
@@ -82,11 +86,11 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
         .filter((e) => nodeSet.has(e.source) && nodeSet.has(e.target))
         .map((e, index) => {
           const edgeRelType = e.type || (e as any).relationship_type;
-          let edgeColor = '#334155';
-          if (edgeRelType === 'POWER_SUPPLY') edgeColor = '#a855f7';
-          else if (edgeRelType === 'EMERGENCY_ACCESS') edgeColor = '#ef4444';
-          else if (edgeRelType === 'WATER_SUPPLY') edgeColor = '#06b6d4';
-          else if (edgeRelType === 'TRANSPORT') edgeColor = '#38bdf8';
+          let edgeColor = '#52525b';
+          if (edgeRelType === 'POWER_SUPPLY') edgeColor = '#000000';
+          else if (edgeRelType === 'EMERGENCY_ACCESS') edgeColor = '#ff0000';
+          else if (edgeRelType === 'WATER_SUPPLY') edgeColor = '#2563eb';
+          else if (edgeRelType === 'TRANSPORT') edgeColor = '#18181b';
 
           return {
             group: 'edges' as const,
@@ -117,44 +121,45 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
             label: 'data(name)',
             'font-family': 'Inter, sans-serif',
             'font-size': '10px',
-            color: '#cbd5e1',
+            'font-weight': 'bold',
+            color: isDark ? '#ffffff' : '#000000',
             'text-valign': 'bottom',
             'text-margin-y': 5,
-            width: 34,
-            height: 34,
+            width: 32,
+            height: 32,
             'border-width': (ele) => (ele.data('is_spof') ? 3 : 1.5),
-            'border-color': (ele) => (ele.data('is_spof') ? '#ef4444' : '#0f172a'),
+            'border-color': (ele) => (ele.data('is_spof') ? '#ff0000' : (isDark ? '#ffffff' : '#000000')),
             'transition-property': 'background-color, border-color, width, height',
-            'transition-duration': 0.3,
+            'transition-duration': 0.2,
           },
         },
         {
           selector: 'node:selected',
           style: {
-            'border-width': 3.5,
-            'border-color': '#38bdf8',
-            width: 44,
-            height: 44,
-            color: '#38bdf8',
+            'border-width': 4,
+            'border-color': isDark ? '#ffffff' : '#000000',
+            width: 42,
+            height: 42,
+            color: isDark ? '#ffffff' : '#000000',
             'font-weight': 'bold',
           },
         },
         {
           selector: 'edge',
           style: {
-            width: 1.8,
+            width: 1.6,
             'line-color': 'data(color)',
             'target-arrow-color': 'data(color)',
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
-            opacity: 0.65,
+            opacity: 0.7,
           },
         },
         {
           selector: '.highlighted',
           style: {
-            'line-color': '#38bdf8',
-            'target-arrow-color': '#38bdf8',
+            'line-color': isDark ? '#ffffff' : '#000000',
+            'target-arrow-color': isDark ? '#ffffff' : '#000000',
             width: 3.5,
             opacity: 1,
             'z-index': 99,
@@ -163,7 +168,7 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
         {
           selector: '.dimmed',
           style: {
-            opacity: 0.15,
+            opacity: 0.12,
           },
         },
       ],
@@ -203,7 +208,7 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
         cyInstanceRef.current = null;
       }
     };
-  }, [networkData, layoutName, filterType, assetStates]);
+  }, [networkData, layoutName, filterType, assetStates, isDark]);
 
   // Select node if selectedAssetId changes
   useEffect(() => {
@@ -231,7 +236,7 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
     <div className="glass-panel" style={{ padding: '0.85rem' }}>
       <div className="panel-header" style={{ marginBottom: '0.75rem', paddingBottom: '0.5rem' }}>
         <div className="panel-title">
-          <span>🕸️ Multi-Layer Network Graph Topology</span>
+          <span>MULTI-LAYER NETWORK TOPOLOGY</span>
           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             Dependency & Service Propagation Graph
           </span>
@@ -244,12 +249,12 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
             style={{
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
-              padding: '0.3rem 0.6rem',
-              fontSize: '0.75rem',
+              background: '#ffffff',
+              color: '#000000',
+              border: '1.5px solid #000000',
+              padding: '0.35rem 0.65rem',
+              fontSize: '0.74rem',
+              fontWeight: 700,
             }}
           >
             <option value="ALL">All Layers ({networkData?.nodes.length || 0})</option>
@@ -266,17 +271,17 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
             value={layoutName}
             onChange={(e) => setLayoutName(e.target.value)}
             style={{
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
-              padding: '0.3rem 0.6rem',
-              fontSize: '0.75rem',
+              background: '#ffffff',
+              color: '#000000',
+              border: '1.5px solid #000000',
+              padding: '0.35rem 0.65rem',
+              fontSize: '0.74rem',
+              fontWeight: 700,
             }}
           >
-            <option value="cose">Force-Directed (Cose)</option>
+            <option value="cose">Force-Directed</option>
             <option value="concentric">Concentric</option>
-            <option value="breadthfirst">Hierarchical (Tree)</option>
+            <option value="breadthfirst">Hierarchical</option>
             <option value="circle">Circular</option>
           </select>
 
@@ -303,54 +308,54 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
               bottom: '1rem',
               right: '1rem',
               width: '320px',
-              background: 'rgba(15, 23, 42, 0.95)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid var(--border-glow)',
-              borderRadius: '10px',
-              padding: '1rem',
-              boxShadow: 'var(--shadow-glow-cyan)',
+              background: '#ffffff',
+              border: '2px solid #000000',
+              padding: '1.25rem',
+              boxShadow: '4px 4px 0px #000000',
               zIndex: 100,
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.65rem' }}>
               <div>
-                <h4 style={{ fontSize: '0.95rem', color: '#38bdf8' }}>{selectedNode.name}</h4>
-                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-                  {selectedNode.id} • {selectedNode.type}
+                <h4 style={{ fontSize: '1rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+                  {selectedNode.name}
+                </h4>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.08em' }}>
+                  {selectedNode.id} // {selectedNode.type}
                 </div>
               </div>
               <span
                 className="badge"
                 style={{
-                  background: `${getStatusColor(selectedSimState?.status || selectedNode.status)}22`,
-                  color: getStatusColor(selectedSimState?.status || selectedNode.status),
-                  border: `1px solid ${getStatusColor(selectedSimState?.status || selectedNode.status)}`,
+                  background: getStatusColor(selectedSimState?.status || selectedNode.status) === '#ff0000' ? '#ff0000' : '#000000',
+                  color: '#ffffff',
+                  border: '1px solid #000000',
                 }}
               >
                 {selectedSimState?.status || selectedNode.status}
               </span>
             </div>
 
-            <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.85rem' }}>
+            <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1rem', borderTop: '1px solid #e4e4e7', paddingTop: '0.65rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Capacity:</span>
-                <span className="mono font-semibold">
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.72rem' }}>Capacity:</span>
+                <span className="mono" style={{ fontWeight: 800 }}>
                   {(selectedSimState ? selectedSimState.operational_capacity : selectedNode.operational_capacity).toFixed(0)}%
                 </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Criticality Score:</span>
-                <span className="mono font-semibold" style={{ color: '#fbbf24' }}>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.72rem' }}>Criticality:</span>
+                <span className="mono" style={{ fontWeight: 900, color: '#000000' }}>
                   {selectedNode.criticality.toFixed(1)}/100
                 </span>
               </div>
               {selectedNode.is_spof && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#f87171', fontSize: '0.75rem', fontWeight: 600 }}>
-                  <ShieldAlert size={14} /> Single Point of Failure (SPOF)
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#ffffff', background: '#000000', border: '1.5px solid #ff0000', padding: '0.3rem 0.5rem', fontSize: '0.72rem', fontWeight: 900, textTransform: 'uppercase' }}>
+                  <ShieldAlert size={14} color="#ff0000" /> SPOF: Zero-Redundancy Node
                 </div>
               )}
               {selectedSimState?.failure_reason && (
-                <div style={{ background: 'rgba(239, 68, 68, 0.15)', padding: '0.4rem 0.6rem', borderRadius: '4px', fontSize: '0.72rem', color: '#fca5a5' }}>
+                <div style={{ background: '#fffbeb', border: '1px solid #f59e0b', padding: '0.4rem 0.6rem', fontSize: '0.72rem', color: '#b45309' }}>
                   <strong>Failure Reason:</strong> {selectedSimState.failure_reason}
                 </div>
               )}
@@ -358,32 +363,32 @@ export const NetworkView: React.FC<NetworkViewProps> = ({
 
             <button
               className="btn btn-danger btn-sm"
-              style={{ width: '100%' }}
+              style={{ width: '100%', fontWeight: 800 }}
               onClick={() => onSimulateFailure(selectedNode.id)}
             >
-              Simulate Failure
+              SIMULATE FAILURE
             </button>
           </div>
         )}
       </div>
 
       {/* Network Legend */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', marginTop: '0.85rem', padding: '0.5rem 0.75rem', background: 'rgba(2, 6, 23, 0.5)', borderRadius: '8px', fontSize: '0.75rem' }}>
-        <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Edge Relationships:</span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <span style={{ width: 14, height: 3, background: '#38bdf8' }} /> Transport Road
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', marginTop: '1rem', padding: '0.75rem 1rem', background: '#fafafa', border: '1.5px solid #000000', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700 }}>
+        <span style={{ color: '#000000', fontWeight: 900 }}>Topological Layer:</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <span style={{ width: 14, height: 3, background: '#18181b' }} /> Transport
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <span style={{ width: 14, height: 3, background: '#a855f7' }} /> Power Grid
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <span style={{ width: 14, height: 3, background: '#000000' }} /> Power Grid
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <span style={{ width: 14, height: 3, background: '#ef4444' }} /> Emergency Route
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <span style={{ width: 14, height: 3, background: '#ff0000' }} /> Emergency Route
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <span style={{ width: 14, height: 3, background: '#06b6d4' }} /> Water Pipeline
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <span style={{ width: 14, height: 3, background: '#2563eb' }} /> Water Pipeline
         </span>
-        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#f87171' }}>
-          <span style={{ width: 8, height: 8, border: '2px solid #ef4444', borderRadius: '50%' }} /> SPOF Red Border
+        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#ff0000', fontWeight: 900 }}>
+          <span style={{ width: 8, height: 8, border: '2px solid #ff0000' }} /> SPOF Choke Point
         </span>
       </div>
     </div>

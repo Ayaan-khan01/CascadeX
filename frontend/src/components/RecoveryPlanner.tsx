@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SimulationResult, RecoveryPlan } from '../types';
 import { simulateRecovery, executeRecovery } from '../api';
-import { RefreshCw, Clock, DollarSign, Users, CheckCircle2, ArrowRight, Play, Wrench, ShieldCheck } from 'lucide-react';
+import { RefreshCw, CheckCircle2, Wrench, ShieldCheck } from 'lucide-react';
 
 interface RecoveryPlannerProps {
   simulationResult: SimulationResult | null;
@@ -89,40 +89,59 @@ export const RecoveryPlanner: React.FC<RecoveryPlannerProps> = ({
 
   if (!simulationResult) {
     return (
-      <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-        <RefreshCw size={40} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem' }} />
-        <h3 style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>No Active Damage to Recover</h3>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-          All municipal infrastructure is operating at baseline. Simulate an infrastructure failure first to compute an optimal critical path recovery schedule.
+      <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+        <RefreshCw size={44} style={{ color: 'var(--text-primary)', margin: '0 auto 1.25rem', strokeWidth: 1.5 }} />
+        <h3 style={{ fontSize: '1.4rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+          NO ACTIVE DISRUPTIONS TO RESTORE
+        </h3>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '550px', margin: '0 auto' }}>
+          All municipal infrastructure is currently operating at nominal baseline. Launch an incident or stress scenario from the Command panel to compute an optimal critical-path restoration sequence.
         </p>
       </div>
     );
   }
 
   const speedOptions = [
-    { label: 'Normal (1.0x)', val: 1.0 },
-    { label: 'Accelerated (1.5x)', val: 1.5 },
-    { label: 'Emergency Mobilization (2.0x)', val: 2.0 },
+    { label: 'NORMAL (1.0X)', val: 1.0 },
+    { label: 'ACCELERATED (1.5X)', val: 1.5 },
+    { label: 'EMERGENCY MOBILIZATION (2.0X)', val: 2.0 },
   ];
 
   const remainingCount = recoveryPlan?.recovery_order?.length || 0;
   const isFullyOperational = remainingCount === 0;
 
   return (
-    <div className="glass-panel">
-      <div className="panel-header">
+    <div className="card" style={{ padding: '1.75rem' }}>
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          borderBottom: '2px solid var(--border-bold)',
+          paddingBottom: '1.25rem',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
         <div>
-          <div className="panel-title">
-            <span>🔄 Post-Disaster Recovery & Restoration Sequencing</span>
+          <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+            CRITICAL PATH SCHEDULING
           </div>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-            Topologically ordered critical path restoration schedule prioritizing single points of failure and essential lifelines.
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.03em', margin: 0, color: 'var(--text-primary)' }}>
+            RECOVERY & RESTORATION SEQUENCER
+          </h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem', maxWidth: '650px' }}>
+            Topologically ordered critical path restoration schedule resolving upstream dependencies, SPOFs, and vital lifelines.
           </p>
         </div>
 
         {/* Speed Controls */}
-        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Crew Deployment:</span>
+        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>
+            CREW SPEED:
+          </span>
           {speedOptions.map((opt) => (
             <button
               key={opt.val}
@@ -131,6 +150,7 @@ export const RecoveryPlanner: React.FC<RecoveryPlannerProps> = ({
                 setRecoverySpeed(opt.val);
                 fetchPlan(opt.val);
               }}
+              style={{ fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.05em' }}
             >
               {opt.label}
             </button>
@@ -144,24 +164,43 @@ export const RecoveryPlanner: React.FC<RecoveryPlannerProps> = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'rgba(2, 6, 23, 0.65)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '10px',
-          padding: '0.85rem 1.25rem',
-          marginBottom: '1.25rem',
+          background: 'var(--bg-surface)',
+          border: '1.5px solid var(--border-bold)',
+          boxShadow: 'var(--shadow-brutalist)',
+          padding: '1rem 1.25rem',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          gap: '1rem',
         }}
       >
-        <div>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Status: </span>
-          {isFullyOperational ? (
-            <span style={{ color: '#10b981', fontWeight: 700 }}>✓ All Infrastructure Fully Restored</span>
-          ) : (
-            <strong style={{ color: '#f87171' }}>{remainingCount} Assets Awaiting Repair</strong>
-          )}
-          {simulationResult && (
-            <span style={{ marginLeft: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Current Impact Score: <strong className="mono" style={{ color: '#38bdf8' }}>{simulationResult.impact_score.toFixed(1)}/100</strong>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+          <div>
+            <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', display: 'block' }}>
+              REPAIR STATUS
             </span>
+            {isFullyOperational ? (
+              <span style={{ color: 'var(--text-primary)', fontWeight: 900, fontSize: '1.05rem' }}>
+                ALL INFRASTRUCTURE FULLY RESTORED
+              </span>
+            ) : (
+              <span style={{ color: '#FF0000', fontWeight: 900, fontSize: '1rem' }}>
+                {remainingCount} ASSETS AWAITING RECONSTRUCTION
+              </span>
+            )}
+          </div>
+
+          {simulationResult && (
+            <>
+              <div style={{ width: '1px', height: '30px', background: 'var(--border-subtle)' }} />
+              <div>
+                <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', display: 'block' }}>
+                  CURRENT DAMAGE IMPACT
+                </span>
+                <span className="mono" style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                  {simulationResult.impact_score.toFixed(1)} / 100
+                </span>
+              </div>
+            </>
           )}
         </div>
 
@@ -170,89 +209,105 @@ export const RecoveryPlanner: React.FC<RecoveryPlannerProps> = ({
             className="btn btn-primary btn-sm"
             disabled={isExecuting || isFullyOperational}
             onClick={() => handleRestoreStep()}
+            style={{ fontWeight: 800, padding: '0.6rem 1.2rem' }}
           >
             <Wrench size={14} />
-            <span>Restore Next Priority Asset</span>
+            <span>RESTORE NEXT PRIORITY ASSET</span>
           </button>
           <button
             className="btn btn-secondary btn-sm"
             disabled={isExecuting || isFullyOperational}
             onClick={handleRestoreAll}
+            style={{ fontWeight: 800, padding: '0.6rem 1.2rem' }}
           >
             <ShieldCheck size={14} />
-            <span>Complete Full Network Recovery</span>
+            <span>RESTORE ALL ASSETS</span>
           </button>
         </div>
       </div>
 
       {/* Status Feedback Banner */}
       {recoveryStatusMsg && (
-        <div className="alert-banner success" style={{ marginBottom: '1.25rem' }}>
+        <div
+          style={{
+            background: 'var(--border-bold)',
+            color: 'var(--bg-main)',
+            padding: '0.85rem 1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            fontSize: '0.85rem',
+            fontWeight: 800,
+            letterSpacing: '0.05em',
+          }}
+        >
           <CheckCircle2 size={18} />
-          <span>{recoveryStatusMsg}</span>
+          <span>{recoveryStatusMsg.toUpperCase()}</span>
         </div>
       )}
 
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '2.5rem', color: '#38bdf8' }}>
-          Calculating critical path restoration dependencies...
+        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-primary)', fontWeight: 800, letterSpacing: '0.1em' }}>
+          COMPUTING TOPOLOGICAL RESTORATION PATH...
         </div>
       ) : recoveryPlan ? (
         <div>
           {/* Recovery Overview KPIs */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div className="kpi-card cyan">
-              <div className="kpi-label">
-                <Clock size={14} /> Total Recovery Time
-              </div>
-              <div className="kpi-value">{recoveryPlan.total_recovery_time.toFixed(1)} hrs</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+            <div className="kpi-card" style={{ position: 'relative' }}>
+              <span className="kpi-bg-number">01</span>
+              <div className="kpi-label">TOTAL DOWNTIME</div>
+              <div className="kpi-value">{recoveryPlan.total_recovery_time.toFixed(1)} HRS</div>
               <div className="kpi-subtext">~{(recoveryPlan.total_recovery_time / 24).toFixed(1)} days to complete</div>
             </div>
 
-            <div className="kpi-card amber">
-              <div className="kpi-label">
-                <DollarSign size={14} /> Estimated Repair Cost
-              </div>
-              <div className="kpi-value">₹{recoveryPlan.total_cost.toFixed(1)} Cr</div>
-              <div className="kpi-subtext">Cumulative emergency municipal expenditure</div>
+            <div className="kpi-card" style={{ position: 'relative' }}>
+              <span className="kpi-bg-number">02</span>
+              <div className="kpi-label">ESTIMATED REPAIR BUDGET</div>
+              <div className="kpi-value">₹{recoveryPlan.total_cost.toFixed(1)} CR</div>
+              <div className="kpi-subtext">Cumulative emergency municipal allocation</div>
             </div>
 
-            <div className="kpi-card green">
-              <div className="kpi-label">
-                <Users size={14} /> Population Served
-              </div>
+            <div className="kpi-card" style={{ position: 'relative' }}>
+              <span className="kpi-bg-number">03</span>
+              <div className="kpi-label">POPULATION RESTORED</div>
               <div className="kpi-value">{simulationResult.affected_population.toLocaleString()}</div>
-              <div className="kpi-subtext">Citizens restored upon plan completion</div>
+              <div className="kpi-subtext">Citizens restored upon completion</div>
             </div>
 
-            <div className="kpi-card purple">
-              <div className="kpi-label">
-                <CheckCircle2 size={14} /> Restoration Stages
-              </div>
-              <div className="kpi-value">{recoveryPlan.recovery_order.length} Assets</div>
-              <div className="kpi-subtext">Topologically sequenced without bottlenecks</div>
+            <div className="kpi-card" style={{ position: 'relative' }}>
+              <span className="kpi-bg-number">04</span>
+              <div className="kpi-label">STAGES IN QUEUE</div>
+              <div className="kpi-value">{recoveryPlan.recovery_order.length} ASSETS</div>
+              <div className="kpi-subtext">Sequenced without upstream deadlocks</div>
             </div>
           </div>
 
           {/* Sequential Restoration Schedule */}
-          <h4 style={{ fontSize: '0.95rem', color: '#f8fafc', marginBottom: '0.75rem' }}>
-            Sequential Asset Restoration Schedule
-          </h4>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0, color: 'var(--text-primary)' }}>
+              SEQUENTIAL ASSET RESTORATION SCHEDULE
+            </h4>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>
+              PRIORITY ORDERED
+            </span>
+          </div>
 
           {recoveryPlan.recovery_order.length > 0 ? (
-            <div style={{ overflowX: 'auto', border: '1px solid var(--border-subtle)', borderRadius: '8px' }}>
+            <div style={{ overflowX: 'auto', border: '1.5px solid var(--border-bold)', boxShadow: 'var(--shadow-brutalist)' }}>
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Seq #</th>
-                    <th>Asset Name</th>
-                    <th>Layer</th>
-                    <th>Priority Score</th>
-                    <th>Duration</th>
-                    <th>Schedule Window</th>
-                    <th>Repair Cost</th>
-                    <th>Dependencies Cleared</th>
-                    <th>Action</th>
+                    <th style={{ width: '60px' }}>SEQ</th>
+                    <th>ASSET NAME</th>
+                    <th>INFRA LAYER</th>
+                    <th>PRIORITY SCORE</th>
+                    <th>DURATION</th>
+                    <th>WINDOW</th>
+                    <th>REPAIR COST</th>
+                    <th>DEPENDENCIES</th>
+                    <th style={{ textAlign: 'right' }}>ACTION</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -268,53 +323,52 @@ export const RecoveryPlanner: React.FC<RecoveryPlannerProps> = ({
                         <td>
                           <span
                             style={{
-                              width: '24px',
-                              height: '24px',
-                              borderRadius: '50%',
-                              background: '#0284c7',
-                              color: '#fff',
+                              width: '26px',
+                              height: '26px',
+                              background: 'var(--border-bold)',
+                              color: 'var(--bg-main)',
                               display: 'inline-flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontWeight: 700,
-                              fontSize: '0.75rem',
+                              fontWeight: 900,
+                              fontSize: '0.78rem',
                             }}
                           >
                             {step.order}
                           </span>
                         </td>
-                        <td style={{ fontWeight: 700 }}>
+                        <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>
                           {aname}{' '}
-                          <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                          <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
                             [{aid}]
                           </span>
                         </td>
                         <td>
-                          <span className="badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1' }}>
+                          <span style={{ border: '1px solid var(--border-bold)', padding: '0.15rem 0.5rem', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
                             {atype}
                           </span>
                         </td>
-                        <td className="mono font-semibold" style={{ color: '#fbbf24' }}>
+                        <td className="mono font-bold" style={{ color: 'var(--text-primary)' }}>
                           {typeof pscore === 'number' ? pscore.toFixed(1) : pscore}
                         </td>
-                        <td className="mono">{step.repair_time} hrs</td>
-                        <td className="mono" style={{ color: '#38bdf8' }}>
+                        <td className="mono">{step.repair_time}h</td>
+                        <td className="mono" style={{ fontWeight: 700 }}>
                           {step.start_time ?? 0}h → {step.end_time ?? step.repair_time}h
                         </td>
-                        <td className="mono" style={{ color: '#34d399' }}>₹{costVal.toFixed(1)} Cr</td>
-                        <td style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        <td className="mono font-bold">₹{costVal.toFixed(1)} CR</td>
+                        <td style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                           {step.dependencies_cleared && step.dependencies_cleared.length > 0
                             ? step.dependencies_cleared.join(', ')
-                            : 'None (Root)'}
+                            : 'ROOT (INDEPENDENT)'}
                         </td>
-                        <td>
+                        <td style={{ textAlign: 'right' }}>
                           <button
                             className="btn btn-secondary btn-sm"
                             disabled={isExecuting}
                             onClick={() => handleRestoreStep(step.order, aid)}
-                            title={`Restore ${aname}`}
+                            style={{ fontWeight: 800, fontSize: '0.72rem', padding: '0.35rem 0.75rem' }}
                           >
-                            <Wrench size={12} /> Repair
+                            REPAIR
                           </button>
                         </td>
                       </tr>
@@ -324,8 +378,8 @@ export const RecoveryPlanner: React.FC<RecoveryPlannerProps> = ({
               </table>
             </div>
           ) : (
-            <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(16, 185, 129, 0.08)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399' }}>
-              ✓ All infrastructure assets have been repaired and returned to operational status.
+            <div style={{ padding: '2.5rem', textAlign: 'center', background: 'var(--bg-surface)', border: '1.5px solid var(--border-bold)', fontWeight: 800, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+              ALL INFRASTRUCTURE ASSETS HAVE BEEN REPAIRED AND RETURNED TO NOMINAL CAPACITY.
             </div>
           )}
         </div>

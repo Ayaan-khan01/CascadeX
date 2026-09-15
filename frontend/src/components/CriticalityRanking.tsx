@@ -45,7 +45,7 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
       <div className="panel-header">
         <div>
           <div className="panel-title">
-            <span>🎯 Infrastructure Criticality & SPOF Vulnerability Matrix</span>
+            <span>INFRASTRUCTURE CRITICALITY & SPOF VULNERABILITY MATRIX</span>
           </div>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
             Multi-dimensional risk scoring combining betweenness centrality, population dependency, topological redundancy, and structural condition.
@@ -53,13 +53,13 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
         </div>
 
         {/* Filter Controls */}
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: '#fca5a5', cursor: 'pointer' }}>
+        <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.74rem', color: '#ff0000', fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={spofOnly}
               onChange={(e) => setSpofOnly(e.target.checked)}
-              style={{ accentColor: '#ef4444' }}
+              style={{ accentColor: '#ff0000' }}
             />
             <span>SPOF Only</span>
           </label>
@@ -68,12 +68,9 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
             style={{
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
-              padding: '0.3rem 0.6rem',
-              fontSize: '0.75rem',
+              padding: '0.35rem 0.65rem',
+              fontSize: '0.74rem',
+              fontWeight: 700,
             }}
           >
             <option value="ALL">All Categories</option>
@@ -89,12 +86,9 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
             style={{
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
-              padding: '0.3rem 0.6rem',
-              fontSize: '0.75rem',
+              padding: '0.35rem 0.65rem',
+              fontSize: '0.74rem',
+              fontWeight: 700,
             }}
           >
             <option value="criticality">Sort: Highest Criticality</option>
@@ -105,18 +99,18 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
       </div>
 
       {/* Criticality Table */}
-      <div style={{ maxHeight: '550px', overflowY: 'auto', border: '1px solid var(--border-subtle)', borderRadius: '8px' }}>
+      <div style={{ maxHeight: '550px', overflowY: 'auto', border: '1.5px solid var(--border-bold)' }}>
         <table className="data-table">
           <thead>
             <tr>
               <th>Rank</th>
               <th>Asset Name</th>
               <th>Type</th>
-              <th>Criticality Score</th>
+              <th>Criticality</th>
               <th>SPOF Status</th>
               <th>Redundancy</th>
-              <th>Physical Condition</th>
-              <th>Citizens Served</th>
+              <th>Condition</th>
+              <th>Citizens</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -127,17 +121,17 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
                 onClick={() => onSelectAsset(asset.id)}
                 style={{ cursor: 'pointer' }}
               >
-                <td className="mono" style={{ color: index < 3 ? '#ef4444' : 'var(--text-muted)', fontWeight: 700 }}>
-                  #{index + 1}
+                <td className="mono" style={{ color: index < 3 ? '#ff0000' : 'var(--text-primary)', fontWeight: 900 }}>
+                  {index < 9 ? `0${index + 1}` : index + 1}
                 </td>
                 <td>
-                  <div style={{ fontWeight: 600 }}>{asset.name}</div>
+                  <div style={{ fontWeight: 800 }}>{asset.name}</div>
                   <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
                     ID: {asset.id}
                   </div>
                 </td>
                 <td>
-                  <span className="badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1' }}>
+                  <span className="badge">
                     {asset.type}
                   </span>
                 </td>
@@ -147,8 +141,8 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
                       style={{
                         width: '45px',
                         height: '6px',
-                        background: '#1e293b',
-                        borderRadius: '3px',
+                        background: '#e4e4e7',
+                        border: '1px solid #000000',
                         overflow: 'hidden',
                       }}
                     >
@@ -156,20 +150,20 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
                         style={{
                           width: `${asset.criticality}%`,
                           height: '100%',
-                          background: asset.criticality > 75 ? '#ef4444' : asset.criticality > 50 ? '#f59e0b' : '#10b981',
+                          background: asset.criticality > 75 ? '#ff0000' : '#000000',
                         }}
                       />
                     </div>
-                    <span className="mono font-bold" style={{ color: asset.criticality > 75 ? '#f87171' : '#fbbf24' }}>
+                    <span className="mono font-bold" style={{ color: asset.criticality > 75 ? '#ff0000' : '#000000', fontWeight: 900 }}>
                       {asset.criticality.toFixed(1)}
                     </span>
                   </div>
                 </td>
                 <td>
                   {asset.is_spof ? (
-                    <span className="badge badge-spof">⚠️ SPOF</span>
+                    <span className="badge badge-spof">SPOF</span>
                   ) : (
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>No</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>—</span>
                   )}
                 </td>
                 <td>{getRedundancyBadge(asset.redundancy)}</td>
@@ -177,13 +171,14 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
                   <span
                     className="mono"
                     style={{
-                      color: asset.condition < 60 ? '#f87171' : asset.condition < 80 ? '#fbbf24' : '#34d399',
+                      color: asset.condition < 60 ? '#ff0000' : 'var(--text-primary)',
+                      fontWeight: 700,
                     }}
                   >
                     {asset.condition.toFixed(0)}%
                   </span>
                 </td>
-                <td className="mono font-medium">
+                <td className="mono" style={{ fontWeight: 700 }}>
                   {asset.population_served.toLocaleString()}
                 </td>
                 <td>
@@ -193,8 +188,9 @@ export const CriticalityRanking: React.FC<CriticalityRankingProps> = ({
                       e.stopPropagation();
                       onSimulateFailure(asset.id);
                     }}
+                    style={{ fontWeight: 800 }}
                   >
-                    <Play size={11} /> Test Failure
+                    FAIL
                   </button>
                 </td>
               </tr>

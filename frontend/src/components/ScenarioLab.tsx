@@ -56,7 +56,7 @@ export const ScenarioLab: React.FC<ScenarioLabProps> = ({
       <div className="panel-header">
         <div>
           <div className="panel-title">
-            <span>🧪 Predefined Scenario Stress Lab</span>
+            <span>PREDEFINED SCENARIO STRESS LAB</span>
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 500 }}>
               10 Calibrated Failure Archetypes & Stress Tests
             </span>
@@ -85,61 +85,80 @@ export const ScenarioLab: React.FC<ScenarioLabProps> = ({
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '1.25rem',
-          marginTop: '1rem',
+          gap: '1.5rem',
+          marginTop: '1.25rem',
         }}
       >
-        {filteredScenarios.map((scenario) => {
+        {filteredScenarios.map((scenario, idx) => {
           const isActive = activeScenarioId === scenario.id;
           const failList = scenario.failed_assets || [];
           const hasEnv = scenario.environmental_factors && Object.keys(scenario.environmental_factors).length > 0;
+          const numStr = idx < 9 ? `0${idx + 1}` : `${idx + 1}`;
 
           return (
             <div
               key={scenario.id}
               style={{
-                background: isActive
-                  ? 'linear-gradient(145deg, rgba(2, 132, 199, 0.15), rgba(15, 23, 42, 0.95))'
-                  : 'rgba(15, 23, 42, 0.7)',
-                border: isActive ? '1.5px solid #38bdf8' : '1px solid var(--border-subtle)',
-                borderRadius: '12px',
-                padding: '1.25rem',
+                position: 'relative',
+                background: 'var(--bg-card)',
+                border: isActive ? '2px solid #ff0000' : '1.5px solid var(--border-bold)',
+                borderRadius: 0,
+                padding: '1.5rem',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                transition: 'all 0.25s ease',
-                boxShadow: isActive ? 'var(--shadow-glow-cyan)' : 'none',
+                transition: 'all 0.2s ease',
+                boxShadow: isActive ? '5px 5px 0px #ff0000' : 'var(--shadow-brutalist)',
+                overflow: 'hidden',
               }}
             >
-              <div>
+              {/* Giant Index Number in Corner */}
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-0.5rem',
+                  right: '0.75rem',
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '4.5rem',
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  color: 'var(--text-light-numeral)',
+                  zIndex: 0,
+                  userSelect: 'none',
+                  letterSpacing: '-0.05em',
+                }}
+              >
+                {numStr}
+              </span>
+
+              <div style={{ position: 'relative', zIndex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                    {getCategoryIcon(scenario.category)}
-                    <span className="mono" style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 700 }}>
+                    <span className="mono" style={{ fontSize: '0.74rem', color: 'var(--text-primary)', fontWeight: 900 }}>
                       {scenario.id}
                     </span>
-                    <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>• {scenario.category}</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>// {scenario.category}</span>
                   </div>
                   {getSeverityBadge((scenario as any).severity)}
                 </div>
 
-                <h3 style={{ fontSize: '1.05rem', color: '#f8fafc', marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>
                   {scenario.name}
                 </h3>
 
-                <p style={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.5, marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '1.25rem' }}>
                   {scenario.description}
                 </p>
 
                 {/* Scenario details pills */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.5rem' }}>
                   {failList.length > 0 && (
-                    <div style={{ fontSize: '0.72rem', background: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '0.7rem', background: 'var(--border-bold)', color: 'var(--bg-main)', padding: '0.2rem 0.5rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Primary Trigger: <strong>{failList.join(', ')}</strong>
                     </div>
                   )}
                   {hasEnv && (
-                    <div style={{ fontSize: '0.72rem', background: 'rgba(6, 182, 212, 0.15)', color: '#67e8f9', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '0.7rem', background: 'var(--bg-surface)', border: '1px solid var(--border-bold)', color: 'var(--text-primary)', padding: '0.2rem 0.5rem', fontWeight: 700, textTransform: 'uppercase' }}>
                       Env Shock: {Object.entries(scenario.environmental_factors!).map(([k, v]) => `${k} (${(v * 100).toFixed(0)}%)`).join(', ')}
                     </div>
                   )}
@@ -148,7 +167,7 @@ export const ScenarioLab: React.FC<ScenarioLabProps> = ({
 
               <button
                 className={`btn ${isActive ? 'btn-danger' : 'btn-primary'}`}
-                style={{ width: '100%' }}
+                style={{ width: '100%', position: 'relative', zIndex: 1 }}
                 disabled={isLoading}
                 onClick={() => onRunScenario(scenario.id)}
               >
@@ -156,8 +175,8 @@ export const ScenarioLab: React.FC<ScenarioLabProps> = ({
                   <span>Simulating Cascade...</span>
                 ) : (
                   <>
-                    <Play size={14} />
-                    <span>{isActive ? 'Re-run Scenario' : 'Execute Scenario Simulation'}</span>
+                    <Play size={13} />
+                    <span>{isActive ? 'Re-run Scenario' : 'Execute Scenario'}</span>
                   </>
                 )}
               </button>

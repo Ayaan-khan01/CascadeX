@@ -78,21 +78,18 @@ export const CascadeTimeline: React.FC<CascadeTimelineProps> = ({
 
   return (
     <div className="glass-panel">
-      <div className="panel-header">
+      <div className="panel-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div className="panel-title">
-            <span>⏱️ Cascade Timeline & Propagation Stepper</span>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-              Scenario: {simulationResult.scenario_name}
-            </span>
+            <span>CASCADE TIMELINE & PROPAGATION STEPPER</span>
           </div>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-            {simulationResult.total_events} Propagation Events across {simulationResult.metrics.cascade_depth + 1} Cascade Levels
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
+            Scenario: {simulationResult.scenario_name} // {simulationResult.total_events} Propagation Events across {simulationResult.metrics.cascade_depth + 1} Cascade Levels
           </p>
         </div>
 
         {/* Playback Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
             className={`btn btn-sm ${isPlaying ? 'btn-danger' : 'btn-primary'}`}
             onClick={() => setIsPlaying(!isPlaying)}
@@ -109,19 +106,16 @@ export const CascadeTimeline: React.FC<CascadeTimelineProps> = ({
             }}
             title="Reset to t=0"
           >
-            <RotateCcw size={14} />
+            <RotateCcw size={14} /> Reset
           </button>
 
           <select
             value={playSpeed}
             onChange={(e) => setPlaySpeed(Number(e.target.value))}
             style={{
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
-              padding: '0.3rem 0.5rem',
-              fontSize: '0.75rem',
+              padding: '0.35rem 0.5rem',
+              fontSize: '0.74rem',
+              fontWeight: 700,
             }}
           >
             <option value={1500}>0.5x Speed</option>
@@ -134,7 +128,7 @@ export const CascadeTimeline: React.FC<CascadeTimelineProps> = ({
 
       {/* Scrubber Slider */}
       <div className="timeline-scrubber">
-        <span className="mono" style={{ fontSize: '0.85rem', color: '#38bdf8', minWidth: '70px' }}>
+        <span className="mono" style={{ fontSize: '0.9rem', fontWeight: 900, color: 'var(--text-primary)', minWidth: '80px' }}>
           t = {currentEvent ? `${currentEvent.timestamp}m` : '0m'}
         </span>
         <input
@@ -148,86 +142,108 @@ export const CascadeTimeline: React.FC<CascadeTimelineProps> = ({
             onStepChange(Number(e.target.value));
           }}
         />
-        <span className="mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          Step {currentStepIndex + 1} of {maxSteps}
+        <span className="mono" style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+          STEP {currentStepIndex + 1} OF {maxSteps}
         </span>
       </div>
 
-      {/* Active Step Highlight Card */}
+      {/* Active Step Highlight Card - With Giant Step Index (Reference 01 / 02 Style) */}
       {currentEvent && (
         <div
           style={{
-            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.95))',
-            border: `1.5px solid ${getLevelColor(currentEvent.cascade_level)}`,
-            borderRadius: '10px',
-            padding: '1rem 1.25rem',
-            marginBottom: '1.25rem',
-            boxShadow: `0 0 16px ${getLevelColor(currentEvent.cascade_level)}33`,
+            position: 'relative',
+            background: 'var(--bg-card)',
+            border: '2px solid var(--border-bold)',
+            padding: '1.5rem',
+            marginBottom: '1.75rem',
+            boxShadow: 'var(--shadow-brutalist)',
+            overflow: 'hidden',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <span
-                style={{
-                  background: getLevelColor(currentEvent.cascade_level),
-                  color: '#000',
-                  fontWeight: 800,
-                  fontSize: '0.72rem',
-                  padding: '0.2rem 0.55rem',
-                  borderRadius: '6px',
-                }}
-              >
-                LEVEL {currentEvent.cascade_level}
-              </span>
-              <span className="mono" style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                t = {currentEvent.timestamp} minutes
+          {/* Giant Step Number in Corner (matching reference image) */}
+          <span
+            style={{
+              position: 'absolute',
+              top: '-0.75rem',
+              right: '1rem',
+              fontFamily: 'var(--font-display)',
+              fontSize: '5rem',
+              fontWeight: 900,
+              lineHeight: 1,
+              color: 'var(--text-light-numeral)',
+              zIndex: 0,
+              userSelect: 'none',
+              letterSpacing: '-0.05em',
+            }}
+          >
+            {currentStepIndex < 9 ? `0${currentStepIndex + 1}` : currentStepIndex + 1}
+          </span>
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <span
+                  style={{
+                    background: 'var(--border-bold)',
+                    color: 'var(--bg-main)',
+                    fontWeight: 900,
+                    fontSize: '0.72rem',
+                    padding: '0.25rem 0.6rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  CASCADE LEVEL {currentEvent.cascade_level}
+                </span>
+                <span className="mono" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                  TIMESTAMP: +{currentEvent.timestamp} MIN
+                </span>
+              </div>
+              {getStatusBadge(currentEvent.new_status)}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+                {currentEvent.asset_name}{' '}
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                  ({currentEvent.asset_id} // {currentEvent.asset_type})
+                </span>
+              </h3>
+              <span className="mono" style={{ fontSize: '0.95rem', fontWeight: 900, color: '#ff0000' }}>
+                Capacity: {currentEvent.previous_capacity.toFixed(0)}% → {currentEvent.new_capacity.toFixed(0)}%
               </span>
             </div>
-            {getStatusBadge(currentEvent.new_status)}
-          </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <h3 style={{ fontSize: '1.15rem', color: '#fff' }}>
-              {currentEvent.asset_name}{' '}
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>
-                ({currentEvent.asset_id} • {currentEvent.asset_type})
-              </span>
-            </h3>
-            <span className="mono" style={{ fontSize: '0.85rem', color: '#f87171' }}>
-              Capacity: {currentEvent.previous_capacity.toFixed(0)}% → {currentEvent.new_capacity.toFixed(0)}%
-            </span>
-          </div>
-
-          <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.5rem', lineHeight: 1.5 }}>
-            <strong>Causal Trigger:</strong> {currentEvent.cause}
-          </div>
-          {currentEvent.details && (
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.25rem' }}>
-              {currentEvent.details}
+            <div style={{ fontSize: '0.88rem', color: 'var(--text-primary)', marginTop: '0.5rem', lineHeight: 1.5, background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', padding: '0.65rem 0.85rem' }}>
+              <strong style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.75rem' }}>Causal Trigger:</strong> {currentEvent.cause}
             </div>
-          )}
+            {currentEvent.details && (
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.4rem' }}>
+                {currentEvent.details}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* Events Stream Table */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <h4 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Full Event Propagation Sequence</h4>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <h4 style={{ fontSize: '0.88rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-primary)' }}>
+          Full Propagation Sequence ({filteredEvents.length})
+        </h4>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Filter size={14} color="#94a3b8" />
+          <Filter size={14} color="var(--text-primary)" />
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
             style={{
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '6px',
               padding: '0.25rem 0.5rem',
-              fontSize: '0.75rem',
+              fontSize: '0.74rem',
+              fontWeight: 700,
             }}
           >
             <option value="ALL">All Severities</option>
-            <option value="critical">Critical</option>
+            <option value="critical">Critical Only</option>
             <option value="high">High</option>
             <option value="medium">Medium</option>
             <option value="low">Low</option>
@@ -235,7 +251,7 @@ export const CascadeTimeline: React.FC<CascadeTimelineProps> = ({
         </div>
       </div>
 
-      <div style={{ maxHeight: '350px', overflowY: 'auto', border: '1px solid var(--border-subtle)', borderRadius: '8px' }}>
+      <div style={{ maxHeight: '380px', overflowY: 'auto', border: '1.5px solid var(--border-bold)' }}>
         <table className="data-table">
           <thead>
             <tr>
@@ -243,7 +259,7 @@ export const CascadeTimeline: React.FC<CascadeTimelineProps> = ({
               <th>Lvl</th>
               <th>Asset</th>
               <th>Type</th>
-              <th>Status Transition</th>
+              <th>Transition</th>
               <th>Capacity</th>
               <th>Causal Trigger</th>
             </tr>
@@ -260,32 +276,31 @@ export const CascadeTimeline: React.FC<CascadeTimelineProps> = ({
                   }}
                   style={{
                     cursor: 'pointer',
-                    background: isCurrent ? 'rgba(56, 189, 248, 0.12)' : undefined,
-                    borderLeft: isCurrent ? '3px solid #38bdf8' : '3px solid transparent',
+                    background: isCurrent ? '#f4f4f5' : undefined,
+                    borderLeft: isCurrent ? '4px solid #000000' : '4px solid transparent',
                   }}
                 >
-                  <td className="mono" style={{ color: '#38bdf8' }}>+{evt.timestamp}m</td>
+                  <td className="mono" style={{ fontWeight: 800, color: 'var(--text-primary)' }}>+{evt.timestamp}m</td>
                   <td>
                     <span
                       style={{
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
+                        fontSize: '0.68rem',
+                        fontWeight: 900,
                         padding: '0.15rem 0.4rem',
-                        borderRadius: '4px',
-                        background: `${getLevelColor(evt.cascade_level)}22`,
-                        color: getLevelColor(evt.cascade_level),
+                        background: 'var(--border-bold)',
+                        color: 'var(--bg-main)',
                       }}
                     >
                       L{evt.cascade_level}
                     </span>
                   </td>
-                  <td style={{ fontWeight: 600 }}>{evt.asset_name}</td>
-                  <td style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{evt.asset_type}</td>
+                  <td style={{ fontWeight: 800 }}>{evt.asset_name}</td>
+                  <td style={{ color: '#71717a', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>{evt.asset_type}</td>
                   <td>{getStatusBadge(evt.new_status)}</td>
-                  <td className="mono" style={{ fontSize: '0.78rem' }}>
+                  <td className="mono" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
                     {evt.previous_capacity.toFixed(0)}% → {evt.new_capacity.toFixed(0)}%
                   </td>
-                  <td style={{ fontSize: '0.76rem', color: '#cbd5e1', maxWidth: '300px' }}>
+                  <td style={{ fontSize: '0.78rem', color: '#27272a', maxWidth: '320px' }}>
                     {evt.cause}
                   </td>
                 </tr>
