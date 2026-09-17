@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm --prefix frontend install",
   "buildCommand": "npm --prefix frontend run build",
-  "outputDirectory": "frontend/dist",
+  "outputDirectory": "dist",
   "functions": {
     "api/index.py": {
       "includeFiles": "backend/**",
@@ -15,7 +15,7 @@
       "destination": "/api/index.py"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
