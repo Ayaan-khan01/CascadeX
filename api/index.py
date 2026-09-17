@@ -1,66 +1,47 @@
-import os
 import sys
-import traceback
 from pathlib import Path
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-# Add all candidate paths where 'backend' might reside in Vercel or local runtimes
-current_file = Path(__file__).resolve()
-candidate_dirs = [
-    current_file.parent.parent / "backend",
-    current_file.parent / "backend",
+# Resolve and add backend directory to sys.path
+_current_file = Path(__file__).resolve()
+for _candidate in [
+    _current_file.parent.parent / "backend",
+    _current_file.parent / "backend",
     Path("/var/task/backend"),
     Path("/var/task"),
     Path.cwd() / "backend",
     Path.cwd(),
-]
+]:
+    if _candidate.exists() and str(_candidate) not in sys.path:
+        sys.path.insert(0, str(_candidate))
 
-for p in candidate_dirs:
-    if p.exists() and str(p) not in sys.path:
-        sys.path.insert(0, str(p))
+from app.main import app as backend_app
 
-try:
-    from app.main import app as main_app
+# Top-level FastAPI instance required by Vercel's build analyzer
+app = FastAPI(
+    title="CascadeX API",
+    description="Urban Infrastructure Failure & Resilience Simulator",
+    version="1.0.0",
+)
 
-    # Ensure routes match both with and without '/api' prefix seamlessly
-    existing_paths = {getattr(r, "path", None) for r in main_app.routes}
-    for route in list(main_app.routes):
-        path = getattr(route, "path", None)
-        if path and path.startswith("/api/"):
-            alt_path = path[4:]  # e.g., /api/health -> /health
-            if alt_path not in existing_paths:
-                main_app.add_api_route(
-                    alt_path,
-                    route.endpoint,
-                    methods=list(route.methods or ["GET"]),
-                    include_in_schema=False,
-                )
-                existing_paths.add(alt_path)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    app = main_app
+# Include all backend routes
+app.include_router(backend_app.router)
 
-except Exception as err:
-    err_traceback = traceback.format_exc()
-    from fastapi import FastAPI
-    from fastapi.responses import JSONResponse
-
-    app = FastAPI(title="CascadeX Startup Diagnostic")
-
-    @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-    def startup_error(path: str):
-        task_files = []
-        try:
-            task_files = os.listdir("/var/task")
-        except Exception:
-            pass
-
-        return JSONResponse(
-            status_code=500,
-            content={
-                "error": "Backend initialization failed",
-                "exception": str(err),
-                "traceback": err_traceback,
-                "sys_path": sys.path,
-                "task_files": task_files,
-                "cwd": os.getcwd(),
-            },
+# Alias routes without /api prefix as well for maximum proxy compatibility
+for _route in list(backend_app.router.routes):
+    if hasattr(_route, "path") and _route.path.startswith("/api/"):
+        app.add_api_route(
+            _route.path[4:],
+            _route.endpoint,
+            methods=list(_route.methods or ["GET"]),
+            include_in_schema=False,
         )
