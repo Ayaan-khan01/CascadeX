@@ -5,7 +5,7 @@
   "description": "CascadeX — Urban Infrastructure Failure & Resilience Simulator",
   "scripts": {
     "dev": "npm --prefix frontend run dev",
-    "build": "npm --prefix frontend run build",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
     "lint": "npm --prefix frontend run lint",
     "start": "./run.sh"
   }
