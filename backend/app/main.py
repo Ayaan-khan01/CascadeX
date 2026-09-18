@@ -8,7 +8,9 @@ from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.data.synthetic_city import generate_synthetic_city
 from app.data.scenarios import get_scenarios, get_scenario_by_id
 from app.graph.infrastructure_graph import InfrastructureGraph
@@ -448,3 +450,25 @@ def explain_cascade(request: FailureRequest):
         "explanation": "\n".join(explanations),
         "simulation_result": result.model_dump(),
     }
+
+
+# ============================================================
+# Static Files & SPA Routing (For Render Deployment)
+# ============================================================
+frontend_dist = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "dist")
+
+if os.path.isdir(frontend_dist):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+    
+    @app.get("/{catchall:path}")
+    def serve_react_app(catchall: str):
+        # Don't serve index.html for missing /api routes
+        if catchall.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+            
+        file_path = os.path.join(frontend_dist, catchall)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+            
+        # SPA Fallback
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
